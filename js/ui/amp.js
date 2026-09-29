@@ -2,7 +2,6 @@
 
 const ampSettings = { ...AMP_DEFAULTS };
 const knobRenderers = {}; // knob adı -> görüntüyü güncelleyen fonksiyon
-const IDLE_HELP = "Bir knob'un üzerine gel: ne işe yaradığını burada göreceksin.";
 
 // Knob değerlerini (0..10) gitar zincirlerine uygular
 function applyAmpSettings() {
@@ -23,13 +22,22 @@ function showKnobHelp(key) {
   $("#ampReadout").innerHTML = `<b>${knob.label} ${ampSettings[key].toFixed(1)}</b><span>${knob.help}</span>`;
 }
 
+function matchesPreset(name) {
+  const preset = AMP_PRESETS[name];
+  return Object.keys(preset).every((key) => Math.abs(ampSettings[key] - preset[key]) < 0.05);
+}
+
 // Mevcut ayar bir preset'le birebir aynıysa o preset'in butonu yanar
 function highlightActivePreset() {
   document.querySelectorAll(".preset").forEach((button) => {
-    const preset = AMP_PRESETS[button.dataset.name];
-    const matches = Object.keys(preset).every((key) => Math.abs(ampSettings[key] - preset[key]) < 0.05);
-    button.setAttribute("aria-pressed", matches);
+    button.setAttribute("aria-pressed", matchesPreset(button.dataset.name));
   });
+}
+
+// Knob'a dokunulmuyorken ekranda aktif preset'in adı görünür
+function showActivePreset() {
+  const active = Object.keys(AMP_PRESETS).find(matchesPreset);
+  $("#ampReadout").innerHTML = `<b>${active || "Özel ayar"}</b>`;
 }
 
 function setKnob(key, value) {
@@ -139,9 +147,9 @@ function buildAmpPanel() {
 
   Object.keys(AMP_PRESETS).forEach((name) => $("#presets").appendChild(createPresetButton(name)));
 
-  $("#ampReadout").textContent = IDLE_HELP;
+  showActivePreset();
   plate.addEventListener("pointerleave", () => {
-    if (!plate.querySelector(".kn.active")) $("#ampReadout").textContent = IDLE_HELP;
+    if (!plate.querySelector(".kn.active")) showActivePreset();
   });
   highlightActivePreset();
 }

@@ -18,7 +18,6 @@
   <div class="meta">
     <span class="pill" id="pillBpm">— BPM</span>
     <span class="pill" id="pillLen">—:—</span>
-    <span class="pill">🎧 Kulaklık önerilir</span>
   </div>
 </header>
 
@@ -45,32 +44,29 @@
   <section class="panel">
     <div class="panel-head">
       <h2>Canlı Nota Akışı</h2>
-      <span class="sub">Her şerit bir enstrüman · kırmızı çizgi = şu an</span>
     </div>
     <canvas id="highway" aria-label="Kayan nota görünümü"></canvas>
   </section>
 
   <div class="grid2">
     <section class="panel">
-      <div class="panel-head"><h2>Amfi</h2><span class="sub">Ritim + lead gitar tonu</span></div>
+      <div class="panel-head"><h2>Amfi</h2></div>
       <div class="amp">
         <div class="amp-brand">Sandman<small>100 WATT · 4×12 · HIGH GAIN</small></div>
         <div class="presets" id="presets" aria-label="Hazır tonlar"></div>
         <div class="plate" id="knobs"></div>
         <div class="amp-readout" id="ampReadout" aria-live="polite"></div>
       </div>
-      <p class="hint">Kadranda istediğin noktaya <b>tıkla</b>, ya da <b>sürükle</b> (sağa/yukarı = artır). Tekerlek ve ok tuşları da çalışır, çift tık varsayılana döner.</p>
     </section>
 
     <section class="panel">
-      <div class="panel-head"><h2>Mikser</h2><span class="sub">M = sustur · S = solo</span></div>
+      <div class="panel-head"><h2>Mikser</h2></div>
       <div class="strips" id="strips"></div>
     </section>
   </div>
 
   <section class="panel drop" id="drop" tabindex="0" role="button" aria-label="Başka bir MIDI dosyası yükle">
     <h3>Başka bir MIDI yükle</h3>
-    <p>.mid dosyasını buraya sürükle ya da tıkla — kanallar otomatik olarak sahneye dağıtılır</p>
     <input id="file" type="file" accept=".mid,.midi" hidden>
   </section>
 </main>
@@ -79,7 +75,7 @@
   Ses motoru <a href="https://tonejs.github.io" target="_blank" rel="noopener">Tone.js</a> ·
   MIDI çözümleme @tonejs/midi ·
   Enstrüman sample'ları tonejs-instruments &amp; Tone.js audio<br>
-  Sahne, ışıklar ve tüm görseller tarayıcıda canlı çizilir.<br><span id="songCredit"></span>
+  <span id="songCredit"></span>
 </footer>
 
 <div class="transport">
@@ -95,6 +91,12 @@
     <div class="seek-fill" id="seekFill"></div><div class="seek-dot" id="seekDot"></div>
   </div>
   <span class="time" id="tDur">0:00</span>
+  <div class="tempo" role="group" aria-label="Tempo">
+    <button class="t-btn small" id="tempoDown" aria-label="Yavaşlat" disabled>−</button>
+    <input type="range" id="tempoSlider" aria-label="Tempo (BPM)" disabled>
+    <button class="t-btn small" id="tempoUp" aria-label="Hızlandır" disabled>+</button>
+    <button class="tempo-value" id="tempoValue" title="Orijinal tempoya dön" disabled>— BPM</button>
+  </div>
   <div class="leds" id="leds" aria-hidden="true"></div>
 </div>
 
@@ -113,6 +115,7 @@
 <script src="js/audio/instruments.js"></script>
 <script src="js/audio/song.js"></script>
 <script src="js/ui/transport.js"></script>
+<script src="js/ui/tempo.js"></script>
 <script src="js/ui/amp.js"></script>
 <script src="js/ui/mixer-panel.js"></script>
 <script src="js/ui/note-highway.js"></script>

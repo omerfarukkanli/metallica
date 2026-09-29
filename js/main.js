@@ -85,6 +85,7 @@ function loadEmbeddedSong() {
 
 // ---------- Başlat ----------
 setupTransport();
+setupTempoControl();
 buildAmpPanel();
 setupFileDrop();
 loadEmbeddedSong();

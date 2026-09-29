@@ -10,7 +10,8 @@ const app = {
   isReady: false,    // sample'lar indi mi?
   isPlaying: false,
   beatStart: 0,      // ilk vuruşun saniyesi (şarkı kısa bir girişle başlayabilir)
-  beatLength: 0.5,   // bir vuruşun süresi (saniye)
+  beatLength: 0.5,   // bir vuruşun süresi (saniye, orijinal tempoda)
+  beatGrid: { ppq: 480, offsetTicks: 0 }, // aynı ızgara tick cinsinden
 };
 
 // Sahne animasyonları için anlık değerler (0..1).

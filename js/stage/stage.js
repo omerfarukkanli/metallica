@@ -83,7 +83,7 @@ const stage = (() => {
       floorTop,
       floorFront,
       narrow,
-      riserTop: floorTop - H * 0.055,
+      riserTop: floorTop - H * 0.04,
       backFoot: floorTop + (floorFront - floorTop) * 0.62,
       frontFoot: floorTop + (floorFront - floorTop) * 0.74,
       personHeight: narrow ? W * 0.24 : Math.min(clamp(H * 0.34, 150, 290), W * 0.17),
@@ -322,7 +322,7 @@ const stage = (() => {
 
     const drumLevel = stageFx.levels.drums;
     const drumNod = headbang(drumLevel);
-    placeCharacter(cast.drums, W / 2, layout.riserTop, (layout.kickRadius / KICK_DRUM_RADIUS) * 1.1);
+    placeCharacter(cast.drums, W / 2, layout.riserTop, (layout.kickRadius / KICK_DRUM_RADIUS) * 0.9);
     animateDrummer(cast.drums, {
       level: drumLevel,
       color: ROLES.drums.color,
@@ -479,7 +479,10 @@ const stage = (() => {
     front.clearRect(0, 0, W, H);
     drawSparks(isPlaying, layout);
     crowd.forEach((fan) => drawFan(fan, animTime, energy, isPlaying));
-    drawNameTag(W / 2, layout.riserTop + (layout.floorTop - layout.riserTop) / 2 + H * 0.01, "DAVUL", ROLES.drums.color, stageFx.levels.drums);
+    const drumTagY = layout.narrow
+      ? layout.riserTop - layout.kickRadius * 6.2           // dar ekranda davulcunun üstünde
+      : layout.riserTop + (layout.floorTop - layout.riserTop) / 2 + H * 0.01;
+    drawNameTag(W / 2, drumTagY, "DAVUL", ROLES.drums.color, stageFx.levels.drums);
     members.forEach((m) => {
       // dar ekranda etiketler kafaların üstüne çıkar ki play butonuyla çakışmasın
       const tagY = layout.narrow ? m.footY - layout.personHeight * 1.12 : m.footY + 22;

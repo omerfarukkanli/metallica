@@ -69,6 +69,23 @@ h1, h2, h3, .oswald { font-family: Oswald, sans-serif; }
 .leds { display: flex; gap: 2px; height: 22px; align-items: flex-end; flex: none; }
 .leds i { width: 4px; height: 100%; border-radius: 1px; background: #1d1d22; }
 .leds i.on { background: var(--c); box-shadow: 0 0 6px var(--c); }
+/* Tempo kontrolü */
+.tempo { display: flex; align-items: center; gap: 6px; flex: none; }
+.tempo input[type=range] { width: 110px; }
+.t-btn.small { width: 30px; height: 30px; font-size: 18px; line-height: 1; }
+.tempo-value {
+  font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: .08em; min-width: 92px;
+  padding: 5px 8px; border-radius: 6px; cursor: pointer; color: #cfc9c2;
+  background: #0b0b0d; border: 1px solid #2c2c33;
+}
+.tempo-value.changed { color: #fff; border-color: var(--red-hot); box-shadow: 0 0 10px rgba(255, 40, 40, .4); }
+.tempo-value:disabled { cursor: default; }
+.tempo-value:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (max-width: 640px) {
+  body { padding-bottom: 132px; }
+  .transport { flex-wrap: wrap; row-gap: 8px; }
+  .tempo { order: 5; width: 100%; justify-content: center; }
+}
 @media (max-width: 640px) { .leds, #tDur { display: none; } .topbar .meta .pill:nth-child(n+2) { display: none; } }
 
 /* Range inputs */

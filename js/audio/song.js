@@ -5,6 +5,16 @@
 //   2. Rolüne göre bir mikser kanalı ve enstrüman oluştur
 //   3. Notaları ve pitch bend'leri Tone.Part ile zamanlamaya koy
 //   4. Sahne için vuruş nabzını zamanla
+//
+// Zamanlama saniye değil MIDI "tick" cinsinden yapılır ("480i" = 480. tick).
+// Böylece Transport'un BPM'i değişince bütün şarkı birlikte hızlanır/yavaşlar.
+// Not: Birden fazla tempo içeren MIDI'lerde sadece ilk tempo kullanılır.
+
+// Tempo değiştiyse nota süresini de aynı oranda ölçekle
+function withCurrentTempo(note) {
+  const scale = app.song.bpm / Tone.Transport.bpm.value;
+  return scale === 1 ? note : { ...note, duration: note.duration * scale };
+}
 
 // General MIDI program numaralarına ve kanal adına bakarak rol tahmini
 function detectRole(midiTrack) {
@@ -80,6 +90,7 @@ function buildSong(midi, fileName) {
 
   const bpm = midi.header.tempos.length ? midi.header.tempos[0].bpm : 120;
   const ppq = midi.header.ppq;
+  Tone.Transport.PPQ = ppq; // Transport tick'i = MIDI tick'i, dönüşüm gerekmesin
   Tone.Transport.bpm.value = bpm;
   master.delay.delayTime.value = (60 / bpm) * 0.75; // noktalı sekizlik: klasik solo delay'i
 
@@ -88,6 +99,7 @@ function buildSong(midi, fileName) {
   const offsetTicks = timeSignatures[1] && timeSignatures[1].ticks < ppq * 4 ? timeSignatures[1].ticks : 0;
   app.beatStart = midi.header.ticksToSeconds(offsetTicks);
   app.beatLength = 60 / bpm;
+  app.beatGrid = { ppq, offsetTicks };
 
   const midiTracks = midi.tracks.filter((t) => t.notes.length > 0);
   const roles = midiTracks.map(detectRole);
@@ -110,14 +122,15 @@ function buildSong(midi, fileName) {
       time: n.time, midi: n.midi, name: n.name, duration: n.duration, velocity: n.velocity, ticks: n.ticks,
     }));
 
-    app.parts.push(new Tone.Part((time, note) => instrument.play(note, time), notes).start(0));
+    const noteEvents = notes.map((note) => ({ ...note, time: `${note.ticks}i` }));
+    app.parts.push(new Tone.Part((time, note) => instrument.play(withCurrentTempo(note), time), noteEvents).start(0));
 
     if (instrument.bend && midiTrack.pitchBends.length) {
-      const bends = midiTrack.pitchBends.map((b) => ({ time: b.time, value: b.value }));
+      const bends = midiTrack.pitchBends.map((b) => ({ time: `${b.ticks}i`, value: b.value }));
       app.parts.push(new Tone.Part((time, bend) => instrument.bend(bend.value, time), bends).start(0));
     }
 
-    const pitches = notes.map((n) => n.midi);
+    const pitches = notes.map((n) => n.midi); // notes: saniye cinsinden, nota akışı için
     return {
       role,
       label,
@@ -134,20 +147,26 @@ function buildSong(midi, fileName) {
   });
 
   scheduleBeatPulse();
-  app.song = { bpm, duration: midi.duration, ...readSongInfo(midi, fileName) };
+  app.song = {
+    bpm, // orijinal tempo
+    duration: midi.duration, // orijinal tempoda saniye
+    ticksToSeconds: (ticks) => midi.header.ticksToSeconds(ticks),
+    secondsToTicks: (seconds) => midi.header.secondsToTicks(seconds),
+    ...readSongInfo(midi, fileName),
+  };
 }
 
 // Her vuruşta sahne ışıklarını ve animasyonları tetikler
 function scheduleBeatPulse() {
+  const { ppq, offsetTicks } = app.beatGrid;
   Tone.Transport.scheduleRepeat((time) => {
-    const songSeconds = Tone.Transport.getSecondsAtTime(time);
-    const beatIndex = Math.round((songSeconds - app.beatStart) / app.beatLength);
+    const beatIndex = Math.round((Tone.Transport.getTicksAtTime(time) - offsetTicks) / ppq);
     Tone.Draw.schedule(() => {
       stageFx.pulse = 1;
       stageFx.beatIndex = beatIndex;
       if (beatIndex % 4 === 0) stageFx.downbeat = 1;
     }, time);
-  }, "4n", app.beatStart);
+  }, "4n", `${offsetTicks}i`);
 }
 
 // MIDI dosyasını çözer, şarkıyı kurar ve sample'ların inmesini bekler
@@ -165,6 +184,7 @@ async function loadMidi(arrayBuffer, fileName) {
 
   buildSong(midi, fileName);
   renderSongInfo();
+  renderTempo();
   renderMixer();
   applyAmpSettings();
 

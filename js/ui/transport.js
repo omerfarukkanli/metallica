@@ -21,7 +21,7 @@ function stopAllVoices() {
 function updatePlayButtons() {
   document.body.classList.toggle("playing", app.isPlaying); // CSS play/pause ikonunu değiştirir
   playButtons.forEach((button) => button.setAttribute("aria-label", app.isPlaying ? "Duraklat" : "Çal"));
-  if (app.isReady) setStatus(app.isPlaying ? `Çalıyor · ${Math.round(app.song.bpm)} BPM` : "Duraklatıldı");
+  if (app.isReady) setStatus(app.isPlaying ? `Çalıyor · ${Math.round(Tone.Transport.bpm.value)} BPM` : "Duraklatıldı");
 }
 
 async function togglePlay() {
@@ -39,16 +39,21 @@ async function togglePlay() {
   updatePlayButtons();
 }
 
+// Şarkı konumu her yerde "orijinal tempodaki saniye" olarak tutulur.
+// Tempo değişse de nota akışı, ilerleme çubuğu ve süre birbiriyle uyumlu kalır.
 function seekTo(seconds) {
   if (!app.song) return;
   stopAllVoices();
-  Tone.Transport.seconds = clamp(seconds, 0, app.song.duration);
+  Tone.Transport.ticks = Math.round(app.song.secondsToTicks(clamp(seconds, 0, app.song.duration)));
 }
 
-// Şu an duyulan saniye. Tone sesi biraz önceden planlar (lookAhead), onu çıkarıyoruz.
+// Şu an duyulan konum. Tone sesi biraz önceden planlar (Tone.now() = şimdi + lookAhead),
+// o yüzden çalarken gerçek saatteki (currentTime) tick'e bakıyoruz.
 function getSongTime() {
-  if (!app.isPlaying) return Tone.Transport.seconds;
-  return Math.max(0, Tone.Transport.seconds - Tone.context.lookAhead);
+  if (!app.song) return 0;
+  const heardAt = app.isPlaying ? Tone.context.currentTime : Tone.now();
+  const ticks = Math.max(0, Tone.Transport.getTicksAtTime(heardAt));
+  return app.song.ticksToSeconds(ticks);
 }
 
 function stopIfSongEnded(songTime) {
@@ -108,8 +113,8 @@ function setupTransport() {
     seekBar.onpointerup = () => (seekBar.onpointermove = null);
   });
   seekBar.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowRight") seekTo(Tone.Transport.seconds + 5);
-    if (event.key === "ArrowLeft") seekTo(Tone.Transport.seconds - 5);
+    if (event.key === "ArrowRight") seekTo(getSongTime() + 5);
+    if (event.key === "ArrowLeft") seekTo(getSongTime() - 5);
   });
 
   // LED metresi: yeşil yerine metal renkleri, kırmızı -> turuncu -> sarı
