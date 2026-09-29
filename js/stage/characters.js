@@ -306,6 +306,9 @@ function mountCharacter(container, markup, viewBox) {
   svg.setAttribute("viewBox", viewBox.join(" "));
   svg.setAttribute("aria-hidden", "true");
   svg.classList.add("character");
+  // Boyutu ilk karede placeCharacter verir. O zamana kadar gizli kalsın,
+  // yoksa tarayıcı onu varsayılan (kocaman) boyutta bir anlığına çizebiliyor.
+  svg.style.visibility = "hidden";
   svg.innerHTML = markup;
   container.appendChild(svg);
 
@@ -351,6 +354,7 @@ function placeCharacter(character, x, y, scale) {
     character.svg.style.width = `${width * scale}px`;
     character.svg.style.height = `${height * scale}px`;
     character.scale = scale;
+    character.svg.style.visibility = "visible";
   }
   character.svg.style.transform = `translate(${x + minX * scale}px, ${y + minY * scale}px)`;
 }

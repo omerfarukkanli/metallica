@@ -2,6 +2,7 @@
 
 const ampSettings = { ...AMP_DEFAULTS };
 const knobRenderers = {}; // knob adı -> görüntüyü güncelleyen fonksiyon
+const IDLE_HELP = "Bir knob'un üzerine gel: ne işe yaradığını burada göreceksin.";
 
 // Knob değerlerini (0..10) gitar zincirlerine uygular
 function applyAmpSettings() {
@@ -32,12 +33,6 @@ function highlightActivePreset() {
   document.querySelectorAll(".preset").forEach((button) => {
     button.setAttribute("aria-pressed", matchesPreset(button.dataset.name));
   });
-}
-
-// Knob'a dokunulmuyorken ekranda aktif preset'in adı görünür
-function showActivePreset() {
-  const active = Object.keys(AMP_PRESETS).find(matchesPreset);
-  $("#ampReadout").innerHTML = `<b>${active || "Özel ayar"}</b>`;
 }
 
 function setKnob(key, value) {
@@ -147,9 +142,9 @@ function buildAmpPanel() {
 
   Object.keys(AMP_PRESETS).forEach((name) => $("#presets").appendChild(createPresetButton(name)));
 
-  showActivePreset();
+  $("#ampReadout").textContent = IDLE_HELP;
   plate.addEventListener("pointerleave", () => {
-    if (!plate.querySelector(".kn.active")) showActivePreset();
+    if (!plate.querySelector(".kn.active")) $("#ampReadout").textContent = IDLE_HELP;
   });
   highlightActivePreset();
 }

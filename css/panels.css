@@ -21,8 +21,8 @@
   margin: 0; font-size: 15px; letter-spacing: .32em; text-transform: uppercase; font-weight: 600;
   display: flex; align-items: center; gap: 10px;
 }
-.panel-head h2::before { content: ""; width: 18px; height: 3px; background: var(--red); box-shadow: 0 0 10px var(--red); }
 .panel-head .sub { color: var(--muted); font-size: 13px; }
+.panel-head h2::before { content: ""; width: 18px; height: 3px; background: var(--red); box-shadow: 0 0 10px var(--red); }
 
 #highway { width: 100%; height: clamp(260px, 38vw, 380px); display: block; border-radius: 8px; background: #050506; border: 1px solid #1c1c21; }
 
@@ -122,5 +122,4 @@
 /* ---------- Drop ---------- */
 .drop { text-align: center; border-style: dashed; cursor: pointer; padding: 28px 20px; transition: border-color .2s, background .2s; }
 .drop.over { border-color: var(--red-hot); background: #16090b; }
-.drop h3 { margin: 0 0 6px; letter-spacing: .24em; text-transform: uppercase; font-size: 15px; font-weight: 600; }
-.drop p { margin: 0; color: var(--muted); font-size: 14px; }
+.drop h3 { margin: 0; letter-spacing: .24em; text-transform: uppercase; font-size: 15px; font-weight: 600; }
